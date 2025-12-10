@@ -10,7 +10,7 @@ int speedValue=0; // speed value
 String readValue; // Incoming serial data
 int distance[3]; // center, left, right
 int speed[2]; // left, right
-float delta;
+float delta; //Yolo
 
 void motor_speed(int speed[]);
 void refresh_distance(void);
