@@ -1,5 +1,5 @@
 #define BASE_SPEED 170
-#define COR_COEF 50
+#define COR_COEF 70
 #define DISTANCE_SEUIL 50
 #include "Arduino.h"
 
@@ -39,6 +39,7 @@ void loop() {
     orientation_mode();
   }
   motor_speed(speed);
+  delay(1);
   // for(int i = 0; i < 3; i++)
   // {
   //   Serial.print("Capteur ");
@@ -72,22 +73,22 @@ void refresh_distance(void)
 void orientation_mode(void)
 {
   bool turn_left = distance[1] > distance[2];
-  speed[0] = -70;
-  speed[1] = -70;
+  speed[0] = -90;
+  speed[1] = -90;
   motor_speed(speed);
-  delay(100);
+  delay(200);
   while (distance[0] < DISTANCE_SEUIL)
   {
     refresh_distance();
     if (turn_left)
     {
-      speed[0] = -BASE_SPEED/2.5;
-      speed[1] = BASE_SPEED/2.5;
+      speed[0] = -BASE_SPEED/2.8;
+      speed[1] = BASE_SPEED/2.8;
     }
     else
     {
-      speed[0] = BASE_SPEED/2.5;
-      speed[1] = -BASE_SPEED/2.5;
+      speed[0] = BASE_SPEED/2.8;
+      speed[1] = -BASE_SPEED/2.8;
     }
     motor_speed(speed);
   }
