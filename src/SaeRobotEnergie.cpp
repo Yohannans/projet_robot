@@ -1,4 +1,6 @@
-#define BASE_SPEED 100
+#define BASE_SPEED 170
+#define COR_COEF 50
+#define DISTANCE_SEUIL 50
 #include "Arduino.h"
 
 const int PWMG = 10; // Signal PWM Gauche vers le pont en H
@@ -14,6 +16,7 @@ float delta; //Yolo
 
 void motor_speed(int speed[]);
 void refresh_distance(void);
+void orientation_mode(void);
 
 void setup() {
   pinMode(PWMD, OUTPUT);
@@ -26,15 +29,14 @@ void setup() {
 void loop() {
   refresh_distance();
   delta = (float)(distance[1] - distance[2]) / (float)(distance[1] + distance[2]);
-  if (distance[0] > 50)
+  if (distance[0] > 30)
   {
-    speed[0] = (BASE_SPEED - delta);
-    speed[1] = (BASE_SPEED + delta);
+    speed[0] = (BASE_SPEED + delta * COR_COEF);
+    speed[1] = (BASE_SPEED - delta * COR_COEF);
   }
   else
   {
-    speed[0] = 0;
-    speed[1] = 0;
+    orientation_mode();
   }
   motor_speed(speed);
   // for(int i = 0; i < 3; i++)
@@ -64,5 +66,29 @@ void refresh_distance(void)
   {
     float volts = analogRead(sensor_port[i])*0.0048828125;  // value from sensor * (5/1024)
     distance[i] = 13 * pow(volts, -1);
+  }
+}
+
+void orientation_mode(void)
+{
+  bool turn_left = distance[1] > distance[2];
+  speed[0] = -70;
+  speed[1] = -70;
+  motor_speed(speed);
+  delay(100);
+  while (distance[0] < DISTANCE_SEUIL)
+  {
+    refresh_distance();
+    if (turn_left)
+    {
+      speed[0] = -BASE_SPEED/2.5;
+      speed[1] = BASE_SPEED/2.5;
+    }
+    else
+    {
+      speed[0] = BASE_SPEED/2.5;
+      speed[1] = -BASE_SPEED/2.5;
+    }
+    motor_speed(speed);
   }
 }
