@@ -1,17 +1,15 @@
-#define BASE_SPEED 150
-#define COR_COEF 70
-#define DISTANCE_SEUIL 0
-#define SEUIL_COTE 10
-#define JACK 11
-#define FLOOR_SENSOR 16
+#define BASE_SPEED 150 // Vitesse de base du robot
+#define COR_COEF 75 // Coefficient de correction de la vitesse en fonction du décalage
+#define JACK 11 // Pin de la tirette jack
+#define FLOOR_SENSOR 16 // Pin du capteur de sol (photo-diode)
+#define PWMG 10  // Signal PWM Gauche vers le pont en H
+#define PWMD 9   // Signal PWM Droit vers le pont en H
+#define SENSG 8  // Signal SENS Gauche vers le pont en H
+#define SENSD 7  // Signal SENS Droit vers le pont en H
+#define SEUIL_PIN 2 // Pin du comparateur du capteur milieu
 
-#include "Arduino.h"
+#include "Arduino.h" // Utilisation des fonctions Arduino dans Platformio
 
-const int PWMG = 10; // Signal PWM Gauche vers le pont en H
-const int PWMD = 9 ; // Signal PWM Droit vers le pont en H
-const int SENSG = 8; // Signal SENS Gauche vers le pont en H
-const int SENSD = 7; // Signal SENS Droit vers le pont en H
-const int SEUIL_PIN = 2;
 const uint8_t sensor_port[3] = {A0, A1, A6};
 int speedValue=0; // speed value
 String readValue; // Incoming serial data
@@ -56,10 +54,7 @@ void loop() {
     speed[0] = 0;
     speed[1] = 0;
     motor_speed(speed);
-    while (1) {
-      delay(1);
-    }
-    return;
+    exit(0);
   }
   delta = (float)(distance[1] - distance[2]) / (float)(distance[1] + distance[2]);
   if (digitalRead(SEUIL_PIN))
@@ -73,20 +68,6 @@ void loop() {
   }
   motor_speed(speed);
   delay(1);
-  // Serial.println(digitalRead(FLOOR_SENSOR));
-  // for(int i = 0; i < 3; i++)
-  // {
-  //   Serial.print("Capteur ");
-  //   Serial.print(i);
-  //   Serial.print(" : ");
-  //   Serial.print(distance[i]);
-  //   Serial.print(" ");
-  // }
-  // Serial.println("");
-  // Serial.print("Seuil : ");
-  // Serial.println(digitalRead(SEUIL_PIN));
-  // delay(1000);
-
 }
 
 void motor_speed(int speed[])
@@ -131,3 +112,4 @@ void orientation_mode(void)
     motor_speed(speed);
   }
 }
+
