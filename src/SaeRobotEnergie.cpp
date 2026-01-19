@@ -6,7 +6,7 @@
 /*   By: yansquer <yansquer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 21:25:32 by yansquer          #+#    #+#             */
-/*   Updated: 2026/01/14 21:31:14 by yansquer         ###   ########.fr       */
+/*   Updated: 2026/01/19 19:53:35 by yansquer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ float delta; // Différence relative entre les distances gauche et droite
 void motor_speed(int speed[]); // Fonction pour régler la vitesse des moteurs
 void refresh_distance(void); // Fonction pour actualiser les distances lues par les capteurs
 void orientation_mode(void); // Fonction pour orienter le robot quand il est proche d'un obstacle
+void stop_robot(void); // Fonction pour arrêter le robot
 
 void setup() {
   // Initialisation des pins de commande des moteurs
