@@ -6,12 +6,12 @@
 /*   By: yansquer <yansquer@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 21:25:32 by yansquer          #+#    #+#             */
-/*   Updated: 2026/01/14 21:31:14 by yansquer         ###   ########.fr       */
+/*   Updated: 2026/01/19 13:41:44 by yansquer         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#define BASE_SPEED 150 // Vitesse de base du robot
-#define COR_COEF 75 // Coefficient de correction de la vitesse en fonction du décalage
+#define BASE_SPEED 255 // Vitesse de base du robot
+#define COR_COEF 130 // Coefficient de correction de la vitesse en fonction du décalage
 #define JACK 11 // Pin de la tirette jack
 #define FLOOR_SENSOR 16 // Pin du capteur de sol (photo-diode)
 #define PWMG 10  // Signal PWM Gauche vers le pont en H
@@ -20,6 +20,7 @@
 #define SENSD 7  // Signal SENS Droit vers le pont en H
 #define SEUIL_PIN 2 // Pin du comparateur du capteur milieu
 #define COEF_ROT 2.5 // Coefficient de réduction de la vitesse en rotation
+#define SIDE_SENSOR_THRESHOLD 20 // Seuil de distance pour les capteurs latéraux en cm
 
 #include "Arduino.h" // Utilisation des fonctions Arduino dans Platformio
 
@@ -32,6 +33,7 @@ float delta; // Différence relative entre les distances gauche et droite
 void motor_speed(int speed[]); // Fonction pour régler la vitesse des moteurs
 void refresh_distance(void); // Fonction pour actualiser les distances lues par les capteurs
 void orientation_mode(void); // Fonction pour orienter le robot quand il est proche d'un obstacle
+void stop_robot(void); // Fonction pour arrêter le robot
 
 void setup() {
   // Initialisation des pins de commande des moteurs
@@ -61,7 +63,7 @@ void loop() {
     stop_robot(); // Arrêt du robot
   }
   delta = (float)(distance[1] - distance[2]) / (float)(distance[1] + distance[2]); // Calcul du décalage relatif
-  if (digitalRead(SEUIL_PIN)) // Si le capteur central n'est pas proche d'un obstacle
+  if (digitalRead(SEUIL_PIN) || distance[1] <= SIDE_SENSOR_THRESHOLD || distance[2] <= SIDE_SENSOR_THRESHOLD) // Si le capteur central n'est pas proche d'un obstacle
   {
     // Ajustement des vitesses en fonction du décalage
     speed[0] = (BASE_SPEED + delta * COR_COEF); 
@@ -77,10 +79,12 @@ void loop() {
 
 void motor_speed(int speed[])
 {
+  static int prev_speed[2] = {0, 0}; // Stockage des vitesses précédentes pour éviter les appels redondants
+  int real_speed[2] = {(speed[0] + prev_speed[0]) / 2, (speed[1] + prev_speed[1]) / 2}; // Application d'une inertie simple
   digitalWrite(SENSD, speed[1] < 0 ? HIGH : LOW); // Sens du moteur droit
   digitalWrite(SENSG, speed[0] < 0 ? LOW : HIGH); // Sens du moteur gauche
   analogWrite (PWMD, abs(speed[0])); // Vitesse du moteur droit
-  analogWrite (PWMG, abs(speed[1])); // Vitesse du moteur gauche
+  analogWrite (PWMG, abs(speed[1]) - 14); // Vitesse du moteur gauche
 }
 
 void refresh_distance(void)
@@ -98,13 +102,14 @@ void orientation_mode(void)
 {
   bool turn_left = distance[1] > distance[2]; // Détermination du sens de rotation
   // Freinage avant de tourner
-  speed[0] = -100; 
-  speed[1] = -100;
+  speed[0] = -200; 
+  speed[1] = -200;
   motor_speed(speed);
   delay(300);
   // Rotation jusqu'à ce que le capteur central ne soit plus proche d'un obstacle
-  while (!digitalRead(SEUIL_PIN))
+  while (!digitalRead(SEUIL_PIN) && !distance[1] <= SIDE_SENSOR_THRESHOLD && !distance[2] <= SIDE_SENSOR_THRESHOLD)
   {
+    Serial.println("Rotation");
     refresh_distance();
     if (turn_left)
     {
