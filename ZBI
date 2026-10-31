@@ -1,0 +1,40 @@
+import random
+
+
+def lancer_jeu():
+  nombre_secret = random.randint(1, 100)
+  essais_max = 7
+  essais_fait = 0
+
+  print("=== BIENVENUE AU JEU DU NOMBRE SECRET ===")
+  print("J'ai choisi un nombre entre 1 et 100.")
+  print(f"Tu as {essais_max} essais pour le trouver !\n")
+
+  while essais_fait < essais_max:
+    entree = input(
+        f"Essai n°{essais_fait + 1}/{essais_max} -> Propose un nombre : "
+    )
+
+    if not entree.isdigit():
+      print("❌ S'il te plaît, entre un nombre entier valide.\n")
+      continue
+
+    proposition = int(entree)
+    essais_fait += 1
+
+    if proposition < nombre_secret:
+      print("🔼 C'est plus grand !\n")
+    elif proposition > nombre_secret:
+      print("🔽 C'est plus petit !\n")
+    else:
+      print(f"🎉 Bravo ! Tu as trouvé {nombre_secret} en {essais_fait} essais.")
+      return
+
+  print(
+      f"😢 Perdu ! Le nombre secret était {nombre_secret}."
+      " Retente ta chance !"
+  )
+
+
+if __name__ == "__main__":
+  lancer_jeu()
